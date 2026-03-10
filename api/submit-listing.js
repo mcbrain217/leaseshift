@@ -38,7 +38,9 @@ export default async function handler(req, res) {
                 'Current Mileage': parsedBody['Current Mileage'] ? Number(parsedBody['Current Mileage']) : null,
                 'Finance Provider': parsedBody['Finance Provider'] || '',
                 'Transfer Allowed': parsedBody['Transfer Allowed'] || 'Not sure',
-                'Transfer Fee': parsedBody['Transfer Fee'] || '',
+                'Transfer Fee': parsedBody['Transfer Fee']
+                  ? String(parsedBody['Transfer Fee'])
+                  : '',
                 'Incentive': parsedBody['Incentive'] ? Number(parsedBody['Incentive']) : null,
                 'Location': parsedBody['Location'] || '',
                 'Notes': parsedBody['Notes'] || '',
