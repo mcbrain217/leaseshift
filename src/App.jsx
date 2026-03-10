@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Routes, Route } from 'react-router-dom';
 import ListingPage from './ListingPage';
 
@@ -178,9 +179,6 @@ export default function LeaseTransferUKMarketplace() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [listingForm, setListingForm] = useState(blankListingForm);
   const [listingSubmitted, setListingSubmitted] = useState(false);
-  const [selectedListing, setSelectedListing] = useState(null);
-  const [enquiryForm, setEnquiryForm] = useState(blankEnquiryForm);
-  const [enquirySubmitted, setEnquirySubmitted] = useState(false);
   const [listingsLoading, setListingsLoading] = useState(true);
   const [hasLiveListings, setHasLiveListings] = useState(false);
 
@@ -237,12 +235,7 @@ export default function LeaseTransferUKMarketplace() {
     setListingSubmitted(false);
   };
 
-  const handleEnquiryChange = (field, value) => {
-    setEnquiryForm((current) => ({ ...current, [field]: value }));
-    setEnquirySubmitted(false);
-  };
-
-  const handleListingSubmit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
@@ -308,21 +301,6 @@ export default function LeaseTransferUKMarketplace() {
     setListingSubmitted(true);
   };
 
-  const handleEnquirySubmit = (event) => {
-    event.preventDefault();
-    setEnquirySubmitted(true);
-    setEnquiryForm(blankEnquiryForm);
-  };
-
-  const openListing = (listing) => {
-    setSelectedListing(listing);
-    setEnquirySubmitted(false);
-    setEnquiryForm({
-      ...blankEnquiryForm,
-      message: `Hi, I am interested in the ${listing.make} listing in ${listing.location}.`,
-    });
-  };
-
   const statusBadgeClasses = {
     Verified: 'bg-emerald-400/15 text-emerald-300',
     'Awaiting review': 'bg-amber-400/15 text-amber-200',
@@ -331,7 +309,22 @@ export default function LeaseTransferUKMarketplace() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <Routes>
+      <Route path="/" element={
+        <div className="min-h-screen bg-slate-950 text-white">
+          <Helmet>
+            <title>LeaseShift UK | Car Lease Transfer Marketplace</title>
+            <meta
+              name="description"
+              content="Browse and list UK car lease transfer opportunities. LeaseShift helps drivers exit a lease or take over an existing lease deal."
+            />
+            <meta property="og:title" content="LeaseShift UK | Car Lease Transfer Marketplace" />
+            <meta
+              property="og:description"
+              content="Browse and list UK car lease transfer opportunities. LeaseShift helps drivers exit a lease or take over an existing lease deal."
+            />
+            <meta property="og:type" content="website" />
+          </Helmet>
       <header className="border-b border-white/10 bg-slate-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
           <div>
@@ -706,88 +699,8 @@ export default function LeaseTransferUKMarketplace() {
           </div>
         </div>
       </footer>
-
-      {selectedListing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-w-lg rounded-lg bg-slate-900 p-6 text-white">
-            <img
-              src={selectedListing.image}
-              alt={selectedListing.make}
-              className="mb-4 h-48 w-full rounded-lg object-cover"
-            />
-            <h3 className="text-xl font-semibold">{selectedListing.make}</h3>
-            <p className="text-emerald-300">{selectedListing.payment}</p>
-            <p className="text-sm text-slate-300">{selectedListing.remaining}</p>
-            <p className="text-sm text-slate-300">{selectedListing.mileage}</p>
-            <p className="text-sm text-slate-300">{selectedListing.incentive}</p>
-            <p className="text-sm text-slate-300">{selectedListing.location}</p>
-            <div className="mt-2 flex items-center gap-2">
-              <span
-                className={`rounded-full px-2 py-1 text-xs font-medium ${statusBadgeClasses[selectedListing.transferStatus]}`}
-              >
-                {selectedListing.transferStatus}
-              </span>
-              <span className="text-xs text-slate-400">{selectedListing.financeProvider}</span>
-            </div>
-            <p className="mt-2 text-xs text-slate-400">{selectedListing.notes}</p>
-            {enquirySubmitted ? (
-              <div className="mt-6 rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-4 text-center">
-                <p className="text-emerald-300">Enquiry sent! We'll be in touch soon.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleEnquirySubmit} className="mt-6 space-y-4">
-                <input
-                  type="text"
-                  placeholder="Full name"
-                  value={enquiryForm.fullName}
-                  onChange={(e) => handleEnquiryChange('fullName', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-slate-800 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
-                  required
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={enquiryForm.email}
-                  onChange={(e) => handleEnquiryChange('email', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-slate-800 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
-                  required
-                />
-                <input
-                  type="tel"
-                  placeholder="Phone"
-                  value={enquiryForm.phone}
-                  onChange={(e) => handleEnquiryChange('phone', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-slate-800 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
-                  required
-                />
-                <textarea
-                  placeholder="Message"
-                  value={enquiryForm.message}
-                  onChange={(e) => handleEnquiryChange('message', e.target.value)}
-                  rows={4}
-                  className="w-full rounded-lg border border-white/10 bg-slate-800 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
-                  required
-                />
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    className="flex-1 rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-500"
-                  >
-                    Send Enquiry
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedListing(null)}
-                    className="rounded-lg border border-white/10 px-6 py-2 text-white transition hover:border-white/30"
-                  >
-                    Close
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </div>
+      } />
+    </Routes>
   );
 }

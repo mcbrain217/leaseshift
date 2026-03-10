@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 export default function ListingPage() {
   const { slug } = useParams();
@@ -46,6 +47,27 @@ export default function ListingPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      <Helmet>
+        <title>{`${listing.make} Lease Transfer – ${listing.payment} | LeaseShift UK`}</title>
+        <meta
+          name="description"
+          content={`View this ${listing.make} lease transfer in ${listing.location}. Monthly payment ${listing.payment}, ${listing.remainingMonths} months remaining, listed on LeaseShift UK.`}
+        />
+        <meta property="og:title" content={`${listing.make} Lease Transfer – ${listing.payment} | LeaseShift UK`} />
+        <meta
+          property="og:description"
+          content={`View this ${listing.make} lease transfer in ${listing.location}. Monthly payment ${listing.payment}, ${listing.remainingMonths} months remaining, listed on LeaseShift UK.`}
+        />
+        <meta property="og:image" content={listing.image} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${listing.make} Lease Transfer – ${listing.payment} | LeaseShift UK`} />
+        <meta
+          name="twitter:description"
+          content={`View this ${listing.make} lease transfer in ${listing.location}. Monthly payment ${listing.payment}, ${listing.remainingMonths} months remaining, listed on LeaseShift UK.`}
+        />
+        <meta name="twitter:image" content={listing.image} />
+      </Helmet>
       <div className="mx-auto max-w-4xl px-6 py-16 lg:px-8">
         <div className="grid gap-8 md:grid-cols-2">
           <div>
