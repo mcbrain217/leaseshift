@@ -1,4 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import ListingPage from './ListingPage';
 
 export default function LeaseTransferUKMarketplace() {
   const initialListings = [
@@ -409,10 +412,9 @@ export default function LeaseTransferUKMarketplace() {
                     Date.now() - new Date(listing.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
 
                   return (
-                    <div
-                      key={listing.id}
-                      className="cursor-pointer rounded-lg border border-white/10 bg-slate-900 p-6 transition hover:border-white/20"
-                      onClick={() => openListing(listing)}
+                    <Link
+                      to={`/listing/${listing.slug}`}
+                      className="block cursor-pointer rounded-lg border border-white/10 bg-slate-900 p-6 transition hover:border-white/20"
                     >
                       <div className="relative mb-4">
                         <img
@@ -446,7 +448,7 @@ export default function LeaseTransferUKMarketplace() {
                         <span className="text-xs text-slate-400">{listing.financeProvider}</span>
                       </div>
                       <p className="mt-2 text-xs text-slate-400">{listing.notes}</p>
-                    </div>
+                    </Link>
                   );
                 })
               ) : (
