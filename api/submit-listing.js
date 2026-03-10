@@ -11,6 +11,11 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Missing Airtable environment variables' });
     }
 
+    const parsedBody =
+      typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+
+    console.log('Incoming listing payload:', parsedBody);
+
     const {
       fullName,
       email,
@@ -26,7 +31,7 @@ export default async function handler(req, res) {
       incentive,
       location,
       notes,
-    } = req.body;
+    } = parsedBody;
 
     console.log('Incoming listing payload:', req.body);
 
