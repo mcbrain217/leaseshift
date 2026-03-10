@@ -216,7 +216,22 @@ export default function LeaseTransferUKMarketplace() {
       const response = await fetch('/api/submit-listing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(listingForm),
+        body: JSON.stringify({
+          'Full Name': listingForm.fullName,
+          'Email': listingForm.email,
+          'Phone': listingForm.phone,
+          'Vehicle': listingForm.vehicle,
+          'Monthly Payment': Number(listingForm.monthlyPayment || 0),
+          'Months Remaining': Number(listingForm.monthsRemaining || 0),
+          'Permitted Annual Mileage': Number(listingForm.annualMileage || 0),
+          'Current Mileage': Number(listingForm.currentMileage || 0),
+          'Finance Provider': listingForm.financeProvider,
+          'Transfer Allowed': listingForm.transferAllowed,
+          'Transfer Fee': Number(listingForm.transferFee || 0),
+          'Incentive': Number(listingForm.incentive || 0),
+          'Location': listingForm.location,
+          'Notes': listingForm.notes,
+        }),
       });
 
       const result = await response.json();
