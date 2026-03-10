@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
 export default function ListingPage() {
   const { slug } = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [enquiryForm, setEnquiryForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: "Hi, I'm interested in this lease listing.",
+  });
+  const [enquirySubmitted, setEnquirySubmitted] = useState(false);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -26,6 +33,37 @@ export default function ListingPage() {
     fetchListings();
   }, [slug]);
 
+  const handleEnquiryChange = (field, value) => {
+    setEnquiryForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleEnquirySubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('/api/submit-enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          'Buyer Name': enquiryForm.name,
+          'Buyer Email': enquiryForm.email,
+          'Buyer Phone': enquiryForm.phone,
+          'Message': enquiryForm.message,
+          'Vehicle Interested In': listing.make,
+          'Listing ID': listing.id,
+        }),
+      });
+
+      if (response.ok) {
+        setEnquirySubmitted(true);
+      } else {
+        console.error('Enquiry submission failed');
+      }
+    } catch (error) {
+      console.error('Enquiry submission error:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
@@ -40,6 +78,7 @@ export default function ListingPage() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold mb-4">Listing not found</h1>
           <p className="text-slate-300">The listing you're looking for doesn't exist.</p>
+          <Link to="/" className="mt-4 inline-block text-sm font-medium text-emerald-400 hover:text-emerald-300">← Back to all listings</Link>
         </div>
       </div>
     );
@@ -120,6 +159,9 @@ export default function ListingPage() {
         </script>
       </Helmet>
       <div className="mx-auto max-w-4xl px-6 py-16 lg:px-8">
+        <div className="mb-6">
+          <Link to="/" className="text-sm font-medium text-emerald-400 hover:text-emerald-300">← Back to all listings</Link>
+        </div>
         <div className="grid gap-8 md:grid-cols-2">
           <div>
             <img
@@ -156,9 +198,52 @@ export default function ListingPage() {
                 <p className="text-lg text-slate-300">{listing.notes}</p>
               </div>
             </div>
-            <button className="w-full rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white transition hover:bg-emerald-500">
-              Enquire about this lease
-            </button>
+            {enquirySubmitted ? (
+              <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-4 text-center">
+                <p className="text-emerald-300">Thank you. Your enquiry has been sent.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleEnquirySubmit} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={enquiryForm.name}
+                  onChange={(e) => handleEnquiryChange('name', e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={enquiryForm.email}
+                  onChange={(e) => handleEnquiryChange('email', e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  required
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone"
+                  value={enquiryForm.phone}
+                  onChange={(e) => handleEnquiryChange('phone', e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  required
+                />
+                <textarea
+                  placeholder="Message"
+                  value={enquiryForm.message}
+                  onChange={(e) => handleEnquiryChange('message', e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="w-full rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white transition hover:bg-emerald-500"
+                >
+                  Send Enquiry
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>
