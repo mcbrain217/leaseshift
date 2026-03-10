@@ -209,8 +209,24 @@ export default function LeaseTransferUKMarketplace() {
     setEnquirySubmitted(false);
   };
 
-  const handleListingSubmit = (event) => {
+  const handleListingSubmit = async (event) => {
     event.preventDefault();
+
+    try {
+      const response = await fetch('/api/submit-listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(listingForm),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Airtable error:', result);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+    }
 
     const newListing = {
       id: Date.now(),
