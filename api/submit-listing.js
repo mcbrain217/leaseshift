@@ -46,7 +46,7 @@ export default async function handler(req, res) {
                 Vehicle: vehicle || '',
                 'Monthly Payment': Number(monthlyPayment || 0),
                 'Months Remaining': Number(monthsRemaining || 0),
-                'Annual Mileage': Number(annualMileage || 0),
+                'Permitted Annual Mileage': Number(annualMileage || 0),
                 'Current Mileage': Number(currentMileage || 0),
                 'Finance Provider': financeProvider || '',
                 'Transfer Allowed': transferAllowed || 'Not sure',
