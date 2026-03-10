@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Routes, Route } from 'react-router-dom';
 import ListingPage from './ListingPage';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
+import Disclaimer from './Disclaimer';
+import Contact from './Contact';
 
 export default function LeaseTransferUKMarketplace() {
   const initialListings = [
@@ -367,7 +371,7 @@ export default function LeaseTransferUKMarketplace() {
               href="#list-your-lease"
               className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:scale-[1.02]"
             >
-              Start trial listing
+              List your lease
             </a>
           </div>
         </div>
@@ -710,10 +714,10 @@ export default function LeaseTransferUKMarketplace() {
               <p className="text-sm text-slate-400">© 2026 LeaseShift UK. All rights reserved.</p>
             </div>
             <nav className="flex gap-6 text-sm text-slate-300">
-              <a href="#" className="transition hover:text-white">Terms of Service</a>
-              <a href="#" className="transition hover:text-white">Privacy Policy</a>
-              <a href="#" className="transition hover:text-white">Disclaimer</a>
-              <a href="#" className="transition hover:text-white">Contact</a>
+              <Link to="/terms" className="transition hover:text-white">Terms of Service</Link>
+              <Link to="/privacy" className="transition hover:text-white">Privacy Policy</Link>
+              <Link to="/disclaimer" className="transition hover:text-white">Disclaimer</Link>
+              <Link to="/contact" className="transition hover:text-white">Contact</Link>
             </nav>
           </div>
         </div>
@@ -721,6 +725,12 @@ export default function LeaseTransferUKMarketplace() {
     </div>
       } />
       <Route path="/listing/:slug" element={<ListingPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/disclaimer" element={<Disclaimer />} />
+      <Route path="/contact" element={<Contact />} />
     </Routes>
   );
 }
