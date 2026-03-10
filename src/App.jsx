@@ -7,6 +7,17 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
 import Disclaimer from './Disclaimer';
 import Contact from './Contact';
+import HowToTransferLease from './pages/HowToTransferLease';
+import GetOutOfLeaseEarly from './pages/GetOutOfLeaseEarly';
+import LeaseTransferVsEarlyTermination from './pages/LeaseTransferVsEarlyTermination';
+import LeaseCompaniesAllowTransfers from './pages/LeaseCompaniesAllowTransfers';
+import LeaseTransferFees from './pages/LeaseTransferFees';
+import TakeOverCarLease from './pages/TakeOverCarLease';
+import BestLeaseTransferDeals from './pages/BestLeaseTransferDeals';
+import LeaseTransferIncentives from './pages/LeaseTransferIncentives';
+import TeslaLeaseTransferUK from './pages/TeslaLeaseTransferUK';
+import PorscheLeaseTransferUK from './pages/PorscheLeaseTransferUK';
+import KnowledgeHub from './pages/KnowledgeHub';
 
 export default function LeaseTransferUKMarketplace() {
   const initialListings = [
@@ -381,6 +392,9 @@ export default function LeaseTransferUKMarketplace() {
         <section id="browse" className="py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mb-8">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
+                A UK marketplace for approved car lease transfers.
+              </p>
               <h2 className="text-3xl font-black tracking-tight">
                 {hasLiveListings ? 'Latest lease transfer opportunities' : 'Example lease listings'}
               </h2>
@@ -502,6 +516,31 @@ export default function LeaseTransferUKMarketplace() {
                   <p className="mt-2 text-slate-300">{step.text}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-white/10 bg-slate-950 py-16">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="max-w-3xl">
+              <h2 className="text-3xl font-black tracking-tight">Lease transfer guides</h2>
+              <p className="mt-3 text-slate-300">
+                Learn how lease transfers work, what fees to expect, and how to exit or take over a car lease in the UK.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              <Link to="/how-to-transfer-a-car-lease-uk" className="rounded-lg border border-white/10 bg-slate-900 p-4 transition hover:border-white/30">
+                How to transfer a car lease in the UK
+              </Link>
+              <Link to="/get-out-of-car-lease-early" className="rounded-lg border border-white/10 bg-slate-900 p-4 transition hover:border-white/30">
+                Can you get out of a car lease early?
+              </Link>
+              <Link to="/lease-transfer-vs-early-termination" className="rounded-lg border border-white/10 bg-slate-900 p-4 transition hover:border-white/30">
+                Lease transfer vs early termination
+              </Link>
+              <Link to="/which-lease-companies-allow-transfers" className="rounded-lg border border-white/10 bg-slate-900 p-4 transition hover:border-white/30">
+                Which lease companies allow transfers?
+              </Link>
             </div>
           </div>
         </section>
@@ -718,6 +757,7 @@ export default function LeaseTransferUKMarketplace() {
               <Link to="/privacy" className="transition hover:text-white">Privacy Policy</Link>
               <Link to="/disclaimer" className="transition hover:text-white">Disclaimer</Link>
               <Link to="/contact" className="transition hover:text-white">Contact</Link>
+              <Link to="/guides" className="transition hover:text-white">Guides</Link>
             </nav>
           </div>
         </div>
@@ -731,6 +771,17 @@ export default function LeaseTransferUKMarketplace() {
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/disclaimer" element={<Disclaimer />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/how-to-transfer-a-car-lease-uk" element={<HowToTransferLease />} />
+      <Route path="/get-out-of-car-lease-early" element={<GetOutOfLeaseEarly />} />
+      <Route path="/lease-transfer-vs-early-termination" element={<LeaseTransferVsEarlyTermination />} />
+      <Route path="/which-lease-companies-allow-transfers" element={<LeaseCompaniesAllowTransfers />} />
+      <Route path="/lease-transfer-fees" element={<LeaseTransferFees />} />
+      <Route path="/take-over-car-lease" element={<TakeOverCarLease />} />
+      <Route path="/best-lease-transfer-deals-uk" element={<BestLeaseTransferDeals />} />
+      <Route path="/lease-transfer-incentives" element={<LeaseTransferIncentives />} />
+      <Route path="/tesla-lease-transfer-uk" element={<TeslaLeaseTransferUK />} />
+      <Route path="/porsche-lease-transfer-uk" element={<PorscheLeaseTransferUK />} />
+      <Route path="/guides" element={<KnowledgeHub />} />
     </Routes>
   );
 }
