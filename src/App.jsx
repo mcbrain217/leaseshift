@@ -237,7 +237,7 @@ export default function LeaseTransferUKMarketplace() {
       const result = await response.json();
 
       if (!response.ok) {
-        console.error('Airtable error:', result);
+        console.error('Airtable error full response:', JSON.stringify(result, null, 2));
       }
     } catch (error) {
       console.error('Submission error:', error);
