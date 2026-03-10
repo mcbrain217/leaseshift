@@ -720,6 +720,7 @@ export default function LeaseTransferUKMarketplace() {
       </footer>
     </div>
       } />
+      <Route path="/listing/:slug" element={<ListingPage />} />
     </Routes>
   );
 }
