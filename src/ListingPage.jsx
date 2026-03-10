@@ -67,6 +67,57 @@ export default function ListingPage() {
           content={`View this ${listing.make} lease transfer in ${listing.location}. Monthly payment ${listing.payment}, ${listing.remainingMonths} months remaining, listed on LeaseShift UK.`}
         />
         <meta name="twitter:image" content={listing.image} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": listing.make,
+            "image": listing.image ? [listing.image] : [],
+            "description": listing.notes || "Car lease transfer opportunity listed on LeaseShift UK.",
+            "brand": {
+              "@type": "Brand",
+              "name": listing.make
+            },
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": "GBP",
+              "price": listing.paymentValue || 0,
+              "availability": "https://schema.org/InStock",
+              "url": typeof window !== 'undefined' ? window.location.href : '',
+              "seller": {
+                "@type": "Organization",
+                "name": "LeaseShift UK"
+              }
+            },
+            "additionalProperty": [
+              {
+                "@type": "PropertyValue",
+                "name": "Months Remaining",
+                "value": listing.remainingMonths
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Finance Provider",
+                "value": listing.financeProvider
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Location",
+                "value": listing.location
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Mileage",
+                "value": listing.mileage
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Incentive",
+                "value": listing.incentive
+              }
+            ]
+          })}
+        </script>
       </Helmet>
       <div className="mx-auto max-w-4xl px-6 py-16 lg:px-8">
         <div className="grid gap-8 md:grid-cols-2">

@@ -324,6 +324,25 @@ export default function LeaseTransferUKMarketplace() {
               content="Browse and list UK car lease transfer opportunities. LeaseShift helps drivers exit a lease or take over an existing lease deal."
             />
             <meta property="og:type" content="website" />
+            <script type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "LeaseShift UK",
+                "url": "https://www.leaseshift.co.uk",
+                "description": "LeaseShift UK is a marketplace for car lease transfers and lease takeovers in the UK.",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://www.leaseshift.co.uk/?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                },
+                "publisher": {
+                  "@type": "Organization",
+                  "name": "LeaseShift UK",
+                  "url": "https://www.leaseshift.co.uk"
+                }
+              })}
+            </script>
           </Helmet>
       <header className="border-b border-white/10 bg-slate-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
