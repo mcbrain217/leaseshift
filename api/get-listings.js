@@ -59,7 +59,15 @@ export default async function handler(req, res) {
           fields['Image'] ||
           'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
         notes: fields['Notes'] || '',
+        createdAt: record.createdTime,
+        featured: Boolean(fields['Featured']),
       };
+    });
+
+    // Sort listings so featured ones appear first
+    listings.sort((a, b) => {
+      if (a.featured === b.featured) return 0;
+      return a.featured ? -1 : 1;
     });
 
     return res.status(200).json({ listings });

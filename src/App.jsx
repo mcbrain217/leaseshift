@@ -402,34 +402,67 @@ export default function LeaseTransferUKMarketplace() {
               </select>
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredListings.map((listing) => (
-                <div
-                  key={listing.id}
-                  className="cursor-pointer rounded-lg border border-white/10 bg-slate-900 p-6 transition hover:border-white/20"
-                  onClick={() => openListing(listing)}
-                >
-                  <img
-                    src={listing.image}
-                    alt={listing.make}
-                    className="mb-4 h-48 w-full rounded-lg object-cover"
-                  />
-                  <h3 className="text-xl font-semibold">{listing.make}</h3>
-                  <p className="text-emerald-300">{listing.payment}</p>
-                  <p className="text-sm text-slate-300">{listing.remaining}</p>
-                  <p className="text-sm text-slate-300">{listing.mileage}</p>
-                  <p className="text-sm text-slate-300">{listing.incentive}</p>
-                  <p className="text-sm text-slate-300">{listing.location}</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${statusBadgeClasses[listing.transferStatus]}`}
+              {filteredListings.length > 0 ? (
+                filteredListings.map((listing) => {
+                  const isNewListing =
+                    listing.createdAt &&
+                    Date.now() - new Date(listing.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+
+                  return (
+                    <div
+                      key={listing.id}
+                      className="cursor-pointer rounded-lg border border-white/10 bg-slate-900 p-6 transition hover:border-white/20"
+                      onClick={() => openListing(listing)}
                     >
-                      {listing.transferStatus}
-                    </span>
-                    <span className="text-xs text-slate-400">{listing.financeProvider}</span>
-                  </div>
-                  <p className="mt-2 text-xs text-slate-400">{listing.notes}</p>
+                      <div className="relative mb-4">
+                        <img
+                          src={listing.image}
+                          alt={listing.make}
+                          className="h-48 w-full rounded-lg object-cover"
+                        />
+                        {isNewListing && (
+                          <span className="absolute right-3 top-3 rounded-full bg-cyan-500 px-3 py-1 text-xs font-semibold text-white">
+                            Just added
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-xl font-semibold">{listing.make}</h3>
+                      <p className="text-emerald-300">{listing.payment}</p>
+                      <p className="text-sm text-slate-300">{listing.remaining}</p>
+                      <p className="text-sm text-slate-300">{listing.mileage}</p>
+                      <p className="text-sm text-slate-300">{listing.incentive}</p>
+                      <p className="text-sm text-slate-300">{listing.location}</p>
+                      <div className="mt-2 flex items-center gap-2">
+                        {listing.featured && (
+                          <span className="rounded-full bg-yellow-500 px-2 py-1 text-xs font-medium text-slate-900">
+                            Featured
+                          </span>
+                        )}
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${statusBadgeClasses[listing.transferStatus]}`}
+                        >
+                          {listing.transferStatus}
+                        </span>
+                        <span className="text-xs text-slate-400">{listing.financeProvider}</span>
+                      </div>
+                      <p className="mt-2 text-xs text-slate-400">{listing.notes}</p>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                  <h3 className="text-2xl font-semibold text-white">No lease transfer opportunities available right now</h3>
+                  <p className="mt-3 max-w-md text-slate-300">
+                    New lease takeover deals are reviewed and published regularly. Check back soon or list your own lease.
+                  </p>
+                  <a
+                    href="#list-your-lease"
+                    className="mt-6 rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-500"
+                  >
+                    List your lease
+                  </a>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>
