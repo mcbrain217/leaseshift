@@ -16,25 +16,6 @@ export default async function handler(req, res) {
 
     console.log('Incoming listing payload:', parsedBody);
 
-    const {
-      fullName,
-      email,
-      phone,
-      vehicle,
-      monthlyPayment,
-      monthsRemaining,
-      annualMileage,
-      currentMileage,
-      financeProvider,
-      transferAllowed,
-      transferFee,
-      incentive,
-      location,
-      notes,
-    } = parsedBody;
-
-    console.log('Incoming listing payload:', req.body);
-
     const airtableResponse = await fetch(
       `https://api.airtable.com/v0/${baseId}/Seller%20Listings`,
       {
@@ -47,21 +28,21 @@ export default async function handler(req, res) {
           records: [
             {
               fields: {
-                'Full Name': fullName || '',
-                Email: email || '',
-                Phone: phone || '',
-                Vehicle: vehicle || '',
-                'Monthly Payment': monthlyPayment ? Number(monthlyPayment) : null,
-                'Months Remaining': monthsRemaining ? Number(monthsRemaining) : null,
-                'Permitted annual mileage': annualMileage ? Number(annualMileage) : null,
-                'Current Mileage': currentMileage ? Number(currentMileage) : null,
-                'Finance Provider': financeProvider || '',
-                'Transfer Allowed': transferAllowed || 'Not sure',
-                'Transfer Fee': transferFee || '',
-                Incentive: incentive ? Number(incentive) : null,
-                Location: location || '',
-                Notes: notes || '',
-                Status: 'Submitted',
+                'Full Name': parsedBody['Full Name'] || '',
+                'Email': parsedBody['Email'] || '',
+                'Phone': parsedBody['Phone'] || '',
+                'Vehicle': parsedBody['Vehicle'] || '',
+                'Monthly Payment': parsedBody['Monthly Payment'] ? Number(parsedBody['Monthly Payment']) : null,
+                'Months Remaining': parsedBody['Months Remaining'] ? Number(parsedBody['Months Remaining']) : null,
+                'Permitted Annual Mileage': parsedBody['Permitted Annual Mileage'] ? Number(parsedBody['Permitted Annual Mileage']) : null,
+                'Current Mileage': parsedBody['Current Mileage'] ? Number(parsedBody['Current Mileage']) : null,
+                'Finance Provider': parsedBody['Finance Provider'] || '',
+                'Transfer Allowed': parsedBody['Transfer Allowed'] || 'Not sure',
+                'Transfer Fee': parsedBody['Transfer Fee'] || '',
+                'Incentive': parsedBody['Incentive'] ? Number(parsedBody['Incentive']) : null,
+                'Location': parsedBody['Location'] || '',
+                'Notes': parsedBody['Notes'] || '',
+                'Status': 'Submitted',
               },
             },
           ],
