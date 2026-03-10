@@ -462,12 +462,25 @@ export default function LeaseTransferUKMarketplace() {
               <p className="mt-2 text-slate-300">Free listing - submit your details and we'll review before publishing</p>
             </div>
             {listingSubmitted ? (
-              <div className="mt-8 rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-6 text-center">
-                <h3 className="text-lg font-semibold text-emerald-300">Submission received</h3>
-                <p className="mt-2 text-slate-300">
-                  Your listing has been submitted and will be reviewed before publishing. We'll be in touch soon.
-                </p>
-              </div>
+              <>
+                <div className="mt-8 rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-6 text-center">
+                  <h3 className="text-lg font-semibold text-emerald-300">Thank you</h3>
+                  <p className="mt-2 text-slate-300">
+                    Your lease submission has been received. Our team will review the lease details and contact you shortly to request vehicle photos and supporting documents before the listing goes live.
+                  </p>
+                </div>
+                <div className="mt-8">
+                  <h4 className="text-lg font-semibold text-white">Photos we will request</h4>
+                  <ul className="mt-4 space-y-2 text-slate-300">
+                    <li>• Front 3/4 view</li>
+                    <li>• Rear 3/4 view</li>
+                    <li>• Interior dashboard</li>
+                    <li>• Current mileage</li>
+                    <li>• Wheels and tyres</li>
+                    <li>• Any scratches or damage</li>
+                  </ul>
+                </div>
+              </>
             ) : (
               <form onSubmit={handleListingSubmit} className="mt-8 space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">

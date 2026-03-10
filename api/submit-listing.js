@@ -1,3 +1,5 @@
+import Resend from 'resend';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -6,10 +8,18 @@ export default async function handler(req, res) {
   try {
     const airtableToken = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
+    const resendKey = process.env.RESEND_API_KEY;
+    const notificationEmail = process.env.NOTIFICATION_EMAIL;
 
     if (!airtableToken || !baseId) {
       return res.status(500).json({ error: 'Missing Airtable environment variables' });
     }
+
+    if (!resendKey || !notificationEmail) {
+      console.warn('Resend configuration missing');
+    }
+
+    const resend = resendKey ? new Resend(resendKey) : null;
 
     const parsedBody =
       typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -59,6 +69,52 @@ export default async function handler(req, res) {
         error: 'Failed to save to Airtable',
         details: data,
       });
+    }
+
+    // attempt to send confirmation and notification emails
+    if (resend) {
+      try {
+        // seller email
+        await resend.emails.send({
+          from: `no-reply@leaseshift.uk`,
+          to: parsedBody['Email'],
+          subject: "We've received your LeaseShift listing submission",
+          text: `Thank you for submitting your lease details to LeaseShift.
+
+Our team will review the information and contact you shortly to request vehicle photos and any supporting documents before the listing goes live.
+
+If you need to update anything in the meantime, simply reply to this email.
+
+LeaseShift UK`,
+        });
+
+        // internal notification
+        const fieldsList = [
+          'Full Name',
+          'Email',
+          'Phone',
+          'Vehicle',
+          'Monthly Payment',
+          'Months Remaining',
+          'Permitted Annual Mileage',
+          'Current Mileage',
+          'Finance Provider',
+          'Transfer Allowed',
+          'Transfer Fee',
+          'Incentive',
+          'Location',
+          'Notes',
+        ];
+        const bodyLines = fieldsList.map((f) => `${f}: ${parsedBody[f] || ''}`);
+        await resend.emails.send({
+          from: `no-reply@leaseshift.uk`,
+          to: notificationEmail,
+          subject: 'New seller listing submitted',
+          text: bodyLines.join("\n"),
+        });
+      } catch (emailError) {
+        console.error('Email send error:', emailError);
+      }
     }
 
     return res.status(200).json({ success: true, data });
