@@ -1,4 +1,4 @@
-import Resend from 'resend';
+import { Resend } from 'resend';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
       try {
         // seller email
         await resend.emails.send({
-          from: `no-reply@leaseshift.uk`,
+          from: 'hello@leaseshift.co.uk',
           to: parsedBody['Email'],
           subject: "We've received your LeaseShift listing submission",
           text: `Thank you for submitting your lease details to LeaseShift.
@@ -107,7 +107,7 @@ LeaseShift UK`,
         ];
         const bodyLines = fieldsList.map((f) => `${f}: ${parsedBody[f] || ''}`);
         await resend.emails.send({
-          from: `no-reply@leaseshift.uk`,
+          from: 'hello@leaseshift.co.uk',
           to: notificationEmail,
           subject: 'New seller listing submitted',
           text: bodyLines.join("\n"),
