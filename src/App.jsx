@@ -235,7 +235,7 @@ export default function LeaseTransferUKMarketplace() {
     setListingSubmitted(false);
   };
 
-  const handleSubmit = async (event) => {
+  const handleListingSubmit = async (event) => {
     event.preventDefault();
 
     try {
