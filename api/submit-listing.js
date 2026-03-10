@@ -28,6 +28,8 @@ export default async function handler(req, res) {
       notes,
     } = req.body;
 
+    console.log('Incoming listing payload:', req.body);
+
     const airtableResponse = await fetch(
       `https://api.airtable.com/v0/${baseId}/Seller%20Listings`,
       {
@@ -44,14 +46,14 @@ export default async function handler(req, res) {
                 Email: email || '',
                 Phone: phone || '',
                 Vehicle: vehicle || '',
-                'Monthly Payment': Number(monthlyPayment || 0),
-                'Months Remaining': Number(monthsRemaining || 0),
-                'Permitted annual mileage': Number(annualMileage || 0),
-                'Current Mileage': Number(currentMileage || 0),
+                'Monthly Payment': monthlyPayment ? Number(monthlyPayment) : null,
+                'Months Remaining': monthsRemaining ? Number(monthsRemaining) : null,
+                'Permitted annual mileage': annualMileage ? Number(annualMileage) : null,
+                'Current Mileage': currentMileage ? Number(currentMileage) : null,
                 'Finance Provider': financeProvider || '',
                 'Transfer Allowed': transferAllowed || 'Not sure',
                 'Transfer Fee': transferFee || '',
-                Incentive: Number(incentive || 0),
+                Incentive: incentive ? Number(incentive) : null,
                 Location: location || '',
                 Notes: notes || '',
                 Status: 'Submitted',
