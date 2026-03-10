@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 export default function LeaseTransferUKMarketplace() {
   const initialListings = [
@@ -13,7 +13,7 @@ export default function LeaseTransferUKMarketplace() {
       incentiveValue: 1500,
       incentive: '£1,500 incentive',
       location: 'Manchester',
-      transferStatus: 'Verified',
+      transferStatus: 'Example listing',
       financeProvider: 'Alphabet',
       image:
         'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80',
@@ -30,7 +30,7 @@ export default function LeaseTransferUKMarketplace() {
       incentiveValue: 2000,
       incentive: '£2,000 incentive',
       location: 'Birmingham',
-      transferStatus: 'Awaiting review',
+      transferStatus: 'Example listing',
       financeProvider: 'Arval',
       image:
         'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
@@ -47,7 +47,7 @@ export default function LeaseTransferUKMarketplace() {
       incentiveValue: 750,
       incentive: '£750 incentive',
       location: 'Leeds',
-      transferStatus: 'Verified',
+      transferStatus: 'Example listing',
       financeProvider: 'Lex Autolease',
       image:
         'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=80',
@@ -178,6 +178,36 @@ export default function LeaseTransferUKMarketplace() {
   const [selectedListing, setSelectedListing] = useState(null);
   const [enquiryForm, setEnquiryForm] = useState(blankEnquiryForm);
   const [enquirySubmitted, setEnquirySubmitted] = useState(false);
+  const [listingsLoading, setListingsLoading] = useState(true);
+  const [hasLiveListings, setHasLiveListings] = useState(false);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const response = await fetch('/api/get-listings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.listings && data.listings.length > 0) {
+            setListings(data.listings);
+            setHasLiveListings(true);
+          } else {
+            setListings(initialListings);
+            setHasLiveListings(false);
+          }
+        } else {
+          setListings(initialListings);
+          setHasLiveListings(false);
+        }
+      } catch (error) {
+        setListings(initialListings);
+        setHasLiveListings(false);
+      } finally {
+        setListingsLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
 
   const filteredListings = useMemo(() => {
     return listings.filter((listing) => {
@@ -294,6 +324,7 @@ export default function LeaseTransferUKMarketplace() {
     Verified: 'bg-emerald-400/15 text-emerald-300',
     'Awaiting review': 'bg-amber-400/15 text-amber-200',
     'Needs check': 'bg-rose-400/15 text-rose-200',
+    'Example listing': 'bg-blue-400/15 text-blue-300',
   };
 
   return (
@@ -331,8 +362,15 @@ export default function LeaseTransferUKMarketplace() {
         <section id="browse" className="py-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mb-8">
-              <h2 className="text-3xl font-black tracking-tight">Browse Cars</h2>
-              <p className="mt-2 text-slate-300">Find verified lease transfers in your area</p>
+              <h2 className="text-3xl font-black tracking-tight">
+                {hasLiveListings ? 'Latest lease transfer opportunities' : 'Example lease listings'}
+              </h2>
+              <p className="mt-2 text-slate-300">
+                {hasLiveListings
+                  ? 'Find verified lease transfers in your area'
+                  : 'These sample listings show how approved lease transfer opportunities will appear on LeaseShift.'
+                }
+              </p>
             </div>
             <div className="mb-8 flex flex-wrap gap-4">
               <input
