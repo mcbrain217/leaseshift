@@ -40,9 +40,17 @@ export default async function handler(req, res) {
       const incentiveValue = fields['Incentive'] || null;
       const remainingMonths = fields['Months Remaining'] || null;
 
+      const vehicle = fields['Vehicle'] || '';
+      const slug = vehicle
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+
       return {
         id: record.id,
-        make: fields['Vehicle'] || '',
+        make: vehicle,
+        slug,
         paymentValue: paymentValue,
         payment: paymentValue ? `£${paymentValue}/mo` : '',
         remainingMonths: remainingMonths,
