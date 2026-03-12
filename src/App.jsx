@@ -324,7 +324,19 @@ export default function LeaseTransferUKMarketplace() {
   };
 
   return (
-    <Routes>
+    <>
+      <Helmet>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z36DDPR3SH"></script>
+        <script>
+          {`
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-Z36DDPR3SH');
+`}
+        </script>
+      </Helmet>
+      <Routes>
       <Route path="/" element={
         <div className="min-h-screen bg-slate-950 text-white">
           <Helmet>
@@ -782,6 +794,7 @@ export default function LeaseTransferUKMarketplace() {
       <Route path="/tesla-lease-transfer-uk" element={<TeslaLeaseTransferUK />} />
       <Route path="/porsche-lease-transfer-uk" element={<PorscheLeaseTransferUK />} />
       <Route path="/guides" element={<KnowledgeHub />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
