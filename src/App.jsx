@@ -252,6 +252,7 @@ export default function LeaseTransferUKMarketplace() {
 
   const handleListingSubmit = async (event) => {
     event.preventDefault();
+    let listingSubmissionSuccessful = false;
 
     try {
       const response = await fetch('/api/submit-listing', {
@@ -279,9 +280,20 @@ export default function LeaseTransferUKMarketplace() {
 
       if (!response.ok) {
         console.error('Airtable error full response:', JSON.stringify(result, null, 2));
+      } else {
+        listingSubmissionSuccessful = true;
       }
     } catch (error) {
       console.error('Submission error:', error);
+    }
+
+    if (listingSubmissionSuccessful && typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('event', 'listing_submitted', {
+        vehicle: listingForm.vehicle,
+        monthly_payment: Number(listingForm.monthlyPayment || 0),
+        months_remaining: Number(listingForm.monthsRemaining || 0),
+        finance_provider: listingForm.financeProvider,
+      });
     }
 
     const newListing = {
@@ -333,6 +345,9 @@ window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-Z36DDPR3SH');
+gtag('event', 'leaseshift_launch', {
+  launch_date: '2026-03-12'
+});
 `}
         </script>
       </Helmet>

@@ -55,6 +55,13 @@ export default function ListingPage() {
       });
 
       if (response.ok) {
+        if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+          window.gtag('event', 'buyer_enquiry_submitted', {
+            vehicle: listing.make,
+            listing_id: listing.id,
+            location: listing.location,
+          });
+        }
         setEnquirySubmitted(true);
       } else {
         console.error('Enquiry submission failed');
