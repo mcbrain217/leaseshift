@@ -64,8 +64,9 @@ export default async function handler(req, res) {
         transferStatus: fields['Transfer Allowed'] || 'Unknown',
         financeProvider: fields['Finance Provider'] || '',
         image:
-          fields['Image'] ||
-          'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
+          Array.isArray(fields['Image']) && fields['Image'].length > 0
+            ? fields['Image'][0].url
+            : 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
         notes: fields['Notes'] || '',
         createdAt: record.createdTime,
         featured: Boolean(fields['Featured']),
