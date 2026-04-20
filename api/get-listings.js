@@ -34,6 +34,13 @@ export default async function handler(req, res) {
 
     // Map Airtable records to simplified structure
     const records = Array.isArray(data.records) ? data.records : [];
+
+    // Debug: log field keys from first record to verify Airtable field names
+    if (records.length > 0) {
+      console.log('[get-listings] First record field keys:', Object.keys(records[0].fields || {}));
+      console.log('[get-listings] Attachments field value:', records[0].fields['Attachments']);
+    }
+
     const listings = records.map((record) => {
       const fields = record.fields || {};
       const paymentValue = fields['Monthly Payment'] || null;
@@ -64,8 +71,8 @@ export default async function handler(req, res) {
         transferStatus: fields['Transfer Allowed'] || 'Unknown',
         financeProvider: fields['Finance Provider'] || '',
         image:
-          Array.isArray(fields['Image']) && fields['Image'].length > 0
-            ? fields['Image'][0].url
+          Array.isArray(fields['Attachments']) && fields['Attachments'].length > 0
+            ? fields['Attachments'][0].url
             : 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
         notes: fields['Notes'] || '',
         createdAt: record.createdTime,
@@ -79,6 +86,7 @@ export default async function handler(req, res) {
       return a.featured ? -1 : 1;
     });
 
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     return res.status(200).json({ listings });
   } catch (error) {
     return res.status(500).json({
