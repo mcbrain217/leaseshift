@@ -6,6 +6,7 @@ export default function ListingPage() {
   const { slug } = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeImage, setActiveImage] = useState('');
   const [enquiryForm, setEnquiryForm] = useState({
     name: '',
     email: '',
@@ -32,6 +33,19 @@ export default function ListingPage() {
 
     fetchListings();
   }, [slug]);
+
+  useEffect(() => {
+    if (!listing) {
+      setActiveImage('');
+      return;
+    }
+
+    const galleryImages = Array.isArray(listing.images) && listing.images.length > 0
+      ? listing.images
+      : [listing.favouriteImage || listing.image].filter(Boolean);
+
+    setActiveImage(listing.favouriteImage || listing.image || galleryImages[0] || '');
+  }, [listing]);
 
   const handleEnquiryChange = (field, value) => {
     setEnquiryForm((current) => ({ ...current, [field]: value }));
@@ -91,6 +105,11 @@ export default function ListingPage() {
     );
   }
 
+  const galleryImages = Array.isArray(listing.images) && listing.images.length > 0
+    ? listing.images
+    : [listing.favouriteImage || listing.image].filter(Boolean);
+  const primaryImage = activeImage || listing.favouriteImage || listing.image || galleryImages[0] || '';
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <Helmet>
@@ -104,7 +123,7 @@ export default function ListingPage() {
           property="og:description"
           content={`View this ${listing.make} lease transfer in ${listing.location}. Monthly payment ${listing.payment}, ${listing.remainingMonths} months remaining, listed on LeaseShift UK.`}
         />
-        <meta property="og:image" content={listing.image} />
+        <meta property="og:image" content={listing.favouriteImage || primaryImage} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${listing.make} Lease Transfer – ${listing.payment} | LeaseShift UK`} />
@@ -112,13 +131,13 @@ export default function ListingPage() {
           name="twitter:description"
           content={`View this ${listing.make} lease transfer in ${listing.location}. Monthly payment ${listing.payment}, ${listing.remainingMonths} months remaining, listed on LeaseShift UK.`}
         />
-        <meta name="twitter:image" content={listing.image} />
+        <meta name="twitter:image" content={listing.favouriteImage || primaryImage} />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
             "name": listing.make,
-            "image": listing.image ? [listing.image] : [],
+            "image": galleryImages,
             "description": listing.notes || "Car lease transfer opportunity listed on LeaseShift UK.",
             "brand": {
               "@type": "Brand",
@@ -171,11 +190,36 @@ export default function ListingPage() {
         </div>
         <div className="grid gap-8 md:grid-cols-2">
           <div>
-            <img
-              src={listing.image}
-              alt={listing.make}
-              className="w-full rounded-lg object-cover"
-            />
+            {primaryImage && (
+              <img
+                src={primaryImage}
+                alt={listing.make}
+                className="w-full rounded-lg object-cover"
+              />
+            )}
+            {galleryImages.length > 1 && (
+              <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
+                {galleryImages.map((imageUrl, index) => (
+                  <button
+                    key={imageUrl}
+                    type="button"
+                    onClick={() => setActiveImage(imageUrl)}
+                    className={`overflow-hidden rounded-md border transition ${
+                      primaryImage === imageUrl
+                        ? 'border-emerald-400 ring-2 ring-emerald-400/40'
+                        : 'border-white/10 hover:border-white/30'
+                    }`}
+                    aria-label={`View image ${index + 1} of ${galleryImages.length}`}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`${listing.make} photo ${index + 1}`}
+                      className="h-16 w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="space-y-6">
             <h1 className="text-3xl font-black tracking-tight">{listing.make}</h1>

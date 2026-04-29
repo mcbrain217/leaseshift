@@ -36,6 +36,13 @@ export default function LeaseTransferUKMarketplace() {
       financeProvider: 'Alphabet',
       image:
         'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80',
+      favouriteImage:
+        'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80',
+      homepageImage:
+        'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80',
+      images: [
+        'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80',
+      ],
       notes: 'Well looked after, full service history, transfer fee known.',
     },
     {
@@ -53,6 +60,13 @@ export default function LeaseTransferUKMarketplace() {
       financeProvider: 'Arval',
       image:
         'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
+      favouriteImage:
+        'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
+      homepageImage:
+        'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
+      images: [
+        'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
+      ],
       notes: 'Home charger included separately if buyer is interested.',
     },
     {
@@ -70,6 +84,13 @@ export default function LeaseTransferUKMarketplace() {
       financeProvider: 'Lex Autolease',
       image:
         'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=80',
+      favouriteImage:
+        'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=80',
+      homepageImage:
+        'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=80',
+      images: [
+        'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1200&q=80',
+      ],
       notes: 'Clean interior, two keys, available in two weeks.',
     },
   ];
@@ -320,6 +341,13 @@ export default function LeaseTransferUKMarketplace() {
       financeProvider: listingForm.financeProvider || 'Provider to review',
       image:
         'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
+      favouriteImage:
+        'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
+      homepageImage:
+        'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
+      images: [
+        'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
+      ],
       notes: listingForm.notes || 'Seller submitted via trial form.',
     };
 
@@ -475,7 +503,7 @@ gtag('event', 'leaseshift_launch', {
                     >
                       <div className="relative mb-4">
                         <img
-                          src={listing.image}
+                          src={listing.homepageImage || listing.favouriteImage || listing.image}
                           alt={listing.make}
                           className="h-48 w-full rounded-lg object-cover"
                         />

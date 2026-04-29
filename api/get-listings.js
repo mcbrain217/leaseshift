@@ -41,11 +41,58 @@ export default async function handler(req, res) {
       console.log('[get-listings] Attachments field value:', records[0].fields['Attachments']);
     }
 
+    const fallbackImage =
+      'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80';
+
+    const getImageUrlFromField = (fieldValue) => {
+      if (!fieldValue) {
+        return null;
+      }
+
+      if (typeof fieldValue === 'string') {
+        return fieldValue;
+      }
+
+      if (Array.isArray(fieldValue) && fieldValue.length > 0) {
+        const firstValue = fieldValue[0];
+        if (typeof firstValue === 'string') {
+          return firstValue;
+        }
+        if (firstValue && typeof firstValue.url === 'string') {
+          return firstValue.url;
+        }
+      }
+
+      if (typeof fieldValue === 'object' && typeof fieldValue.url === 'string') {
+        return fieldValue.url;
+      }
+
+      return null;
+    };
+
     const listings = records.map((record) => {
       const fields = record.fields || {};
       const paymentValue = fields['Monthly Payment'] || null;
       const incentiveValue = fields['Incentive'] || null;
       const remainingMonths = fields['Months Remaining'] || null;
+      const attachmentUrls = Array.isArray(fields['Attachments'])
+        ? fields['Attachments']
+            .map((attachment) => attachment && attachment.url)
+            .filter(Boolean)
+        : [];
+
+      const favouriteImage =
+        getImageUrlFromField(fields['Favourite Image']) ||
+        getImageUrlFromField(fields['Favorite Image']) ||
+        attachmentUrls[0] ||
+        fallbackImage;
+
+      const homepageImage =
+        getImageUrlFromField(fields['Homepage Image']) ||
+        getImageUrlFromField(fields['Listings Homepage Image']) ||
+        favouriteImage;
+
+      const images = attachmentUrls.length > 0 ? attachmentUrls : [favouriteImage];
 
       const vehicle = fields['Vehicle'] || '';
       const slug = vehicle
@@ -70,10 +117,10 @@ export default async function handler(req, res) {
         location: fields['Location'] || '',
         transferStatus: fields['Transfer Allowed'] || 'Unknown',
         financeProvider: fields['Finance Provider'] || '',
-        image:
-          Array.isArray(fields['Attachments']) && fields['Attachments'].length > 0
-            ? fields['Attachments'][0].url
-            : 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=80',
+        image: favouriteImage,
+        favouriteImage,
+        homepageImage,
+        images,
         notes: fields['Notes'] || '',
         createdAt: record.createdTime,
         featured: Boolean(fields['Featured']),
