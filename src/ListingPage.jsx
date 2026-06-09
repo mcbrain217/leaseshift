@@ -237,6 +237,12 @@ export default function ListingPage() {
                 <p className="text-lg text-slate-300">{listing.mileage}</p>
               </div>
               <div>
+                <span className="text-sm font-medium text-slate-400">Incentive</span>
+                <p className={`text-lg font-semibold ${listing.incentiveValue ? 'text-amber-400' : 'text-slate-400'}`}>
+                  {listing.incentiveValue ? `£${listing.incentiveValue.toLocaleString()} cash incentive` : 'None listed'}
+                </p>
+              </div>
+              <div>
                 <span className="text-sm font-medium text-slate-400">Finance Provider</span>
                 <p className="text-lg text-slate-300">{listing.financeProvider}</p>
               </div>
