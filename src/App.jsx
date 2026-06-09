@@ -24,6 +24,7 @@ export default function LeaseTransferUKMarketplace() {
     {
       id: 1,
       make: 'BMW M340i Touring',
+      slug: 'bmw-m340i-touring',
       paymentValue: 489,
       payment: '£489/mo',
       remainingMonths: 18,
@@ -48,6 +49,7 @@ export default function LeaseTransferUKMarketplace() {
     {
       id: 2,
       make: 'Tesla Model Y',
+      slug: 'tesla-model-y',
       paymentValue: 599,
       payment: '£599/mo',
       remainingMonths: 22,
@@ -72,6 +74,7 @@ export default function LeaseTransferUKMarketplace() {
     {
       id: 3,
       make: 'Audi Q5 S Line',
+      slug: 'audi-q5-s-line',
       paymentValue: 429,
       payment: '£429/mo',
       remainingMonths: 14,
@@ -320,6 +323,11 @@ export default function LeaseTransferUKMarketplace() {
     const newListing = {
       id: Date.now(),
       make: listingForm.vehicle || 'New vehicle submission',
+      slug: (listingForm.vehicle || 'new-vehicle-submission')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-'),
       paymentValue: Number(listingForm.monthlyPayment || 0),
       payment: listingForm.monthlyPayment
         ? `£${listingForm.monthlyPayment}/mo`
@@ -496,9 +504,21 @@ gtag('event', 'leaseshift_launch', {
                     listing.createdAt &&
                     Date.now() - new Date(listing.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
 
+                  const effectiveSlug =
+                    listing.slug ||
+                    (listing.make
+                      ? listing.make
+                          .toLowerCase()
+                          .replace(/[^a-z0-9\s-]/g, '')
+                          .trim()
+                          .replace(/\s+/g, '-')
+                      : null);
+
+                  if (!effectiveSlug) return null;
+
                   return (
                     <Link
-                      to={`/listing/${listing.slug}`}
+                      to={`/listing/${effectiveSlug}`}
                       className="block cursor-pointer rounded-lg border border-white/10 bg-slate-900 p-6 transition hover:border-white/20"
                     >
                       <div className="relative mb-4">
