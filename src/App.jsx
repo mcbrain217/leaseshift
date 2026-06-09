@@ -514,11 +514,30 @@ gtag('event', 'leaseshift_launch', {
                         )}
                       </div>
                       <h3 className="text-xl font-semibold">{listing.make}</h3>
-                      <p className="text-emerald-300">{listing.payment}</p>
-                      <p className="text-sm text-slate-300">{listing.remaining}</p>
-                      <p className="text-sm text-slate-300">{listing.mileage}</p>
-                      <p className="text-sm text-slate-300">{listing.incentive}</p>
-                      <p className="text-sm text-slate-300">{listing.location}</p>
+                      <dl className="mt-4 space-y-2 text-sm">
+                        <div className="flex items-baseline justify-between gap-3 border-b border-white/5 pb-2">
+                          <dt className="font-semibold text-slate-200">Monthly amount</dt>
+                          <dd className="font-semibold text-emerald-300">{listing.payment}</dd>
+                        </div>
+                        <div className="flex items-baseline justify-between gap-3 border-b border-white/5 pb-2">
+                          <dt className="font-semibold text-slate-200">Term remaining</dt>
+                          <dd className="text-slate-300">{listing.remaining}</dd>
+                        </div>
+                        <div className="flex items-baseline justify-between gap-3 border-b border-white/5 pb-2">
+                          <dt className="font-semibold text-slate-200">Annual mileage</dt>
+                          <dd className="text-slate-300">{listing.mileage}</dd>
+                        </div>
+                        <div className="flex items-baseline justify-between gap-3 border-b border-white/5 pb-2">
+                          <dt className="font-semibold text-slate-200">Incentive</dt>
+                          <dd className={listing.incentiveValue ? 'font-semibold text-amber-400' : 'text-slate-400'}>
+                            {listing.incentiveValue ? `£${listing.incentiveValue.toLocaleString()} cash incentive` : 'None listed'}
+                          </dd>
+                        </div>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <dt className="font-semibold text-slate-200">Location</dt>
+                          <dd className="text-slate-300">{listing.location}</dd>
+                        </div>
+                      </dl>
                       <div className="mt-2 flex items-center gap-2">
                         {listing.featured && (
                           <span className="rounded-full bg-yellow-500 px-2 py-1 text-xs font-medium text-slate-900">
@@ -530,7 +549,7 @@ gtag('event', 'leaseshift_launch', {
                         >
                           {listing.transferStatus}
                         </span>
-                        <span className="text-xs text-slate-400">{listing.financeProvider}</span>
+                        <span className="text-xs text-slate-400">Provider: {listing.financeProvider}</span>
                       </div>
                       <p className="mt-2 text-xs text-slate-400">{listing.notes}</p>
                     </Link>
