@@ -14,6 +14,7 @@ export default function ListingPage() {
     message: "Hi, I'm interested in this lease listing.",
   });
   const [enquirySubmitted, setEnquirySubmitted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -46,6 +47,22 @@ export default function ListingPage() {
 
     setActiveImage(listing.favouriteImage || listing.image || galleryImages[0] || '');
   }, [listing]);
+
+  useEffect(() => {
+    if (!listing) return;
+    const galleryImages = Array.isArray(listing.images) && listing.images.length > 0
+      ? listing.images
+      : [listing.favouriteImage || listing.image].filter(Boolean);
+    if (galleryImages.length <= 1) return;
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setActiveImage((current) => {
+        const idx = galleryImages.indexOf(current);
+        return galleryImages[(idx + 1) % galleryImages.length];
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [listing, isPaused]);
 
   const handleEnquiryChange = (field, value) => {
     setEnquiryForm((current) => ({ ...current, [field]: value }));
@@ -191,11 +208,62 @@ export default function ListingPage() {
         <div className="grid gap-8 md:grid-cols-2">
           <div>
             {primaryImage && (
-              <img
-                src={primaryImage}
-                alt={listing.make}
-                className="w-full rounded-lg object-cover"
-              />
+              <div
+                className="relative overflow-hidden rounded-lg"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                <img
+                  src={primaryImage}
+                  alt={listing.make}
+                  className="w-full rounded-lg object-cover transition-opacity duration-500"
+                />
+                {galleryImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPaused(true);
+                        setActiveImage((current) => {
+                          const idx = galleryImages.indexOf(current);
+                          return galleryImages[(idx - 1 + galleryImages.length) % galleryImages.length];
+                        });
+                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition"
+                      aria-label="Previous image"
+                    >
+                      &#8249;
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPaused(true);
+                        setActiveImage((current) => {
+                          const idx = galleryImages.indexOf(current);
+                          return galleryImages[(idx + 1) % galleryImages.length];
+                        });
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition"
+                      aria-label="Next image"
+                    >
+                      &#8250;
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {galleryImages.map((imageUrl, index) => (
+                        <button
+                          key={imageUrl}
+                          type="button"
+                          onClick={() => { setIsPaused(true); setActiveImage(imageUrl); }}
+                          className={`h-1.5 rounded-full transition-all ${
+                            primaryImage === imageUrl ? 'w-4 bg-white' : 'w-1.5 bg-white/40'
+                          }`}
+                          aria-label={`Go to image ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             )}
             {galleryImages.length > 1 && (
               <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
@@ -203,7 +271,7 @@ export default function ListingPage() {
                   <button
                     key={imageUrl}
                     type="button"
-                    onClick={() => setActiveImage(imageUrl)}
+                    onClick={() => { setIsPaused(true); setActiveImage(imageUrl); }}
                     className={`overflow-hidden rounded-md border transition ${
                       primaryImage === imageUrl
                         ? 'border-emerald-400 ring-2 ring-emerald-400/40'
