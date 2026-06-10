@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         .replace(/\s+/g, "-");
 
       return `<url>
-        <loc>${baseUrl}/listing/${slug}</loc>
+        <loc>${baseUrl}/listing/${encodeURIComponent(slug)}</loc>
       </url>`;
     });
 

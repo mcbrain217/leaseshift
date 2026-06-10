@@ -19,8 +19,7 @@ import TeslaLeaseTransferUK from './pages/TeslaLeaseTransferUK';
 import PorscheLeaseTransferUK from './pages/PorscheLeaseTransferUK';
 import KnowledgeHub from './pages/KnowledgeHub';
 
-export default function LeaseTransferUKMarketplace() {
-  const initialListings = [
+const initialListings = [
     {
       id: 1,
       make: 'BMW M340i Touring',
@@ -98,6 +97,7 @@ export default function LeaseTransferUKMarketplace() {
     },
   ];
 
+export default function LeaseTransferUKMarketplace() {
   const blankListingForm = {
     fullName: '',
     email: '',
@@ -213,6 +213,8 @@ export default function LeaseTransferUKMarketplace() {
   ];
 
   const [listings, setListings] = useState(initialListings);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [apiError, setApiError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -239,7 +241,8 @@ export default function LeaseTransferUKMarketplace() {
           setHasLiveListings(false);
         }
       } catch (error) {
-        setListings(initialListings);
+        setApiError(true);
+        setListings([]);
         setHasLiveListings(false);
       } finally {
         setListingsLoading(false);
@@ -402,6 +405,7 @@ gtag('event', 'leaseshift_launch', {
               content="Browse and list UK car lease transfer opportunities. LeaseShift helps drivers exit a lease or take over an existing lease deal."
             />
             <meta property="og:type" content="website" />
+            <meta property="og:image" content="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80" />
             <script type="application/ld+json">
               {JSON.stringify({
                 "@context": "https://schema.org",
@@ -438,17 +442,37 @@ gtag('event', 'leaseshift_launch', {
             <a href="#faq" className="transition hover:text-white">FAQ</a>
           </nav>
           <div className="flex gap-3">
-            <button className="rounded-2xl border border-white/15 px-4 py-2 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/5">
+            <button
+              className="rounded-2xl border border-white/15 px-4 py-2 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/5"
+            >
               Admin login
             </button>
             <a
               href="#list-your-lease"
-              className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:scale-[1.02]"
+              className="hidden rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:scale-[1.02] md:inline-flex"
             >
               List your lease
             </a>
+            <button
+              className="rounded-2xl border border-white/15 px-3 py-2 text-sm text-white md:hidden"
+              onClick={() => setMobileNavOpen((o) => !o)}
+              aria-label="Toggle navigation"
+            >
+              {mobileNavOpen ? '✕' : '☰'}
+            </button>
           </div>
         </div>
+        {mobileNavOpen && (
+          <div className="border-t border-white/10 bg-slate-950 px-6 py-4 md:hidden">
+            <nav className="flex flex-col gap-4 text-sm text-slate-300">
+              <a href="#browse" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>Browse Cars</a>
+              <a href="#how-it-works" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>How It Works</a>
+              <a href="#list-your-lease" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>List Your Lease</a>
+              <a href="#compliance" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>Compliance</a>
+              <a href="#faq" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>FAQ</a>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main>
@@ -493,8 +517,6 @@ gtag('event', 'leaseshift_launch', {
               >
                 <option value="all">All statuses</option>
                 <option value="verified">Verified</option>
-                <option value="awaiting review">Awaiting review</option>
-                <option value="needs check">Needs check</option>
               </select>
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -518,6 +540,7 @@ gtag('event', 'leaseshift_launch', {
 
                   return (
                     <Link
+                      key={listing.id || effectiveSlug}
                       to={`/listing/${effectiveSlug}`}
                       className="block cursor-pointer rounded-lg border border-white/10 bg-slate-900 p-6 transition hover:border-white/20"
                     >
@@ -525,6 +548,7 @@ gtag('event', 'leaseshift_launch', {
                         <img
                           src={listing.homepageImage || listing.favouriteImage || listing.image}
                           alt={listing.make}
+                          loading="lazy"
                           className="h-48 w-full rounded-lg object-cover"
                         />
                         {isNewListing && (
@@ -577,16 +601,40 @@ gtag('event', 'leaseshift_launch', {
                 })
               ) : (
                 <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                  <h3 className="text-2xl font-semibold text-white">No lease transfer opportunities available right now</h3>
-                  <p className="mt-3 max-w-md text-slate-300">
-                    New lease takeover deals are reviewed and published regularly. Check back soon or list your own lease.
-                  </p>
-                  <a
-                    href="#list-your-lease"
-                    className="mt-6 rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-500"
-                  >
-                    List your lease
-                  </a>
+                  {apiError ? (
+                    <>
+                      <h3 className="text-2xl font-semibold text-white">Unable to load listings right now</h3>
+                      <p className="mt-3 max-w-md text-slate-300">
+                        There was a problem connecting to our listings service. Please try refreshing the page.
+                      </p>
+                    </>
+                  ) : listings.length > 0 ? (
+                    <>
+                      <h3 className="text-2xl font-semibold text-white">No listings match your filters</h3>
+                      <p className="mt-3 max-w-md text-slate-300">
+                        Try adjusting your search or clearing the filters to see all available leases.
+                      </p>
+                      <button
+                        onClick={() => { setSearchTerm(''); setPaymentFilter('all'); setStatusFilter('all'); }}
+                        className="mt-6 rounded-lg bg-slate-700 px-6 py-2 font-semibold text-white transition hover:bg-slate-600"
+                      >
+                        Clear filters
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-2xl font-semibold text-white">No lease transfer opportunities available right now</h3>
+                      <p className="mt-3 max-w-md text-slate-300">
+                        New lease takeover deals are reviewed and published regularly. Check back soon or list your own lease.
+                      </p>
+                      <a
+                        href="#list-your-lease"
+                        className="mt-6 rounded-lg bg-emerald-600 px-6 py-2 font-semibold text-white transition hover:bg-emerald-500"
+                      >
+                        List your lease
+                      </a>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -876,6 +924,15 @@ gtag('event', 'leaseshift_launch', {
       <Route path="/tesla-lease-transfer-uk" element={<TeslaLeaseTransferUK />} />
       <Route path="/porsche-lease-transfer-uk" element={<PorscheLeaseTransferUK />} />
       <Route path="/guides" element={<KnowledgeHub />} />
+      <Route path="*" element={
+        <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center px-6 text-center">
+          <h1 className="text-6xl font-black">404</h1>
+          <p className="mt-4 text-xl text-slate-300">Page not found</p>
+          <Link to="/" className="mt-8 rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white transition hover:bg-emerald-500">
+            Back to listings
+          </Link>
+        </div>
+      } />
       </Routes>
     </>
   );
