@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Routes, Route } from 'react-router-dom';
@@ -237,6 +237,8 @@ export default function LeaseTransferUKMarketplace() {
   const [wantedSubmitted, setWantedSubmitted] = useState(false);
   const [listingsLoading, setListingsLoading] = useState(true);
   const [hasLiveListings, setHasLiveListings] = useState(false);
+  const [refreshAvailable, setRefreshAvailable] = useState(false);
+  const listingsVersionRef = useRef(null);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -244,6 +246,7 @@ export default function LeaseTransferUKMarketplace() {
         const response = await fetch('/api/get-listings');
         if (response.ok) {
           const data = await response.json();
+          listingsVersionRef.current = data.version || null;
           if (data.listings && data.listings.length > 0) {
             setListings(data.listings);
             setHasLiveListings(true);
@@ -265,6 +268,32 @@ export default function LeaseTransferUKMarketplace() {
     };
 
     fetchListings();
+  }, []);
+
+  useEffect(() => {
+    const checkForUpdates = async () => {
+      try {
+        const response = await fetch('/api/get-listings', { cache: 'no-store' });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (!data.version || !listingsVersionRef.current) return;
+        if (data.version === listingsVersionRef.current) return;
+
+        if (typeof document !== 'undefined' && !document.hasFocus()) {
+          window.location.reload();
+          return;
+        }
+
+        setRefreshAvailable(true);
+      } catch (error) {
+        console.error('Refresh check failed:', error);
+      }
+    };
+
+    const intervalId = window.setInterval(checkForUpdates, 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const filteredListings = useMemo(() => {
@@ -555,6 +584,17 @@ gtag('event', 'leaseshift_launch', {
                   : 'These sample listings show how approved lease transfer opportunities will appear on LeaseShift.'
                 }
               </p>
+              {refreshAvailable && (
+                <div className="mt-4 flex flex-col gap-3 rounded-lg border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-100 md:flex-row md:items-center md:justify-between">
+                  <p>New or updated listings are available.</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="rounded-lg bg-cyan-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-cyan-400"
+                  >
+                    Refresh listings
+                  </button>
+                </div>
+              )}
             </div>
             <div className="mb-8 flex flex-wrap gap-4">
               <input
