@@ -122,6 +122,19 @@ export default function LeaseTransferUKMarketplace() {
     message: '',
   };
 
+  const blankWantedForm = {
+    fullName: '',
+    email: '',
+    phone: '',
+    vehicle: '',
+    monthlyBudget: '',
+    maxTermRemaining: '',
+    annualMileage: '',
+    location: '',
+    urgency: 'Flexible',
+    notes: '',
+  };
+
   const compliancePoints = [
     'All transfers are subject to approval by the relevant finance provider.',
     'LeaseShift UK is a marketplace and does not provide financial advice.',
@@ -220,6 +233,8 @@ export default function LeaseTransferUKMarketplace() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [listingForm, setListingForm] = useState(blankListingForm);
   const [listingSubmitted, setListingSubmitted] = useState(false);
+  const [wantedForm, setWantedForm] = useState(blankWantedForm);
+  const [wantedSubmitted, setWantedSubmitted] = useState(false);
   const [listingsLoading, setListingsLoading] = useState(true);
   const [hasLiveListings, setHasLiveListings] = useState(false);
 
@@ -275,6 +290,11 @@ export default function LeaseTransferUKMarketplace() {
   const handleListingChange = (field, value) => {
     setListingForm((current) => ({ ...current, [field]: value }));
     setListingSubmitted(false);
+  };
+
+  const handleWantedChange = (field, value) => {
+    setWantedForm((current) => ({ ...current, [field]: value }));
+    setWantedSubmitted(false);
   };
 
   const handleListingSubmit = async (event) => {
@@ -367,6 +387,48 @@ export default function LeaseTransferUKMarketplace() {
     setListingSubmitted(true);
   };
 
+  const handleWantedSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('/api/submit-wanted', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          'Buyer Name': wantedForm.fullName,
+          'Buyer Email': wantedForm.email,
+          'Buyer Phone': wantedForm.phone,
+          'Vehicle Interested In': wantedForm.vehicle,
+          'Monthly Budget': wantedForm.monthlyBudget ? Number(wantedForm.monthlyBudget) : null,
+          'Max Term Remaining': wantedForm.maxTermRemaining ? Number(wantedForm.maxTermRemaining) : null,
+          'Preferred Annual Mileage': wantedForm.annualMileage ? Number(wantedForm.annualMileage) : null,
+          'Preferred Location': wantedForm.location,
+          'Urgency': wantedForm.urgency,
+          'Message': wantedForm.notes,
+        }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        console.error('Wanted submission failed:', result);
+        return;
+      }
+
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'wanted_submitted', {
+          vehicle_interest: wantedForm.vehicle,
+          monthly_budget: Number(wantedForm.monthlyBudget || 0),
+          location: wantedForm.location,
+        });
+      }
+
+      setWantedForm(blankWantedForm);
+      setWantedSubmitted(true);
+    } catch (error) {
+      console.error('Wanted submission error:', error);
+    }
+  };
+
   const statusBadgeClasses = {
     Verified: 'bg-emerald-400/15 text-emerald-300',
     'Awaiting review': 'bg-amber-400/15 text-amber-200',
@@ -436,6 +498,7 @@ gtag('event', 'leaseshift_launch', {
           </div>
           <nav className="hidden gap-6 text-sm text-slate-300 md:flex">
             <a href="#browse" className="transition hover:text-white">Browse Cars</a>
+            <a href="#wanted" className="transition hover:text-white">Wanted</a>
             <a href="#how-it-works" className="transition hover:text-white">How It Works</a>
             <a href="#list-your-lease" className="transition hover:text-white">List Your Lease</a>
             <a href="#compliance" className="transition hover:text-white">Compliance</a>
@@ -466,6 +529,7 @@ gtag('event', 'leaseshift_launch', {
           <div className="border-t border-white/10 bg-slate-950 px-6 py-4 md:hidden">
             <nav className="flex flex-col gap-4 text-sm text-slate-300">
               <a href="#browse" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>Browse Cars</a>
+              <a href="#wanted" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>Wanted</a>
               <a href="#how-it-works" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>How It Works</a>
               <a href="#list-your-lease" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>List Your Lease</a>
               <a href="#compliance" className="transition hover:text-white" onClick={() => setMobileNavOpen(false)}>Compliance</a>
@@ -684,6 +748,135 @@ gtag('event', 'leaseshift_launch', {
                 Which lease companies allow transfers?
               </Link>
             </div>
+          </div>
+        </section>
+
+        <section id="wanted" className="border-t border-white/10 bg-white/[0.03] py-16">
+          <div className="mx-auto max-w-5xl px-6 lg:px-8">
+            <div className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
+                Demand board
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">
+                Looking for a specific lease?
+              </h2>
+              <p className="mt-3 text-slate-300">
+                Tell us what you want and we will notify you when matching leases are submitted.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg border border-white/10 bg-slate-900 p-4 text-sm text-slate-300">
+                <p className="font-semibold text-white">Most wanted right now</p>
+                <p className="mt-2">Tesla Model Y under £550/mo</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-slate-900 p-4 text-sm text-slate-300">
+                <p className="font-semibold text-white">Most wanted right now</p>
+                <p className="mt-2">BMW 3 Series with 18 months or less</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-slate-900 p-4 text-sm text-slate-300">
+                <p className="font-semibold text-white">Most wanted right now</p>
+                <p className="mt-2">Family SUV around London and South East</p>
+              </div>
+            </div>
+
+            {wantedSubmitted ? (
+              <div className="mt-8 rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-6 text-center">
+                <h3 className="text-lg font-semibold text-emerald-300">You're on the wanted list</h3>
+                <p className="mt-2 text-slate-300">
+                  Thanks for sharing your preferences. We'll contact you when a suitable lease appears.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleWantedSubmit} className="mt-8 space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    value={wantedForm.fullName}
+                    onChange={(e) => handleWantedChange('fullName', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={wantedForm.email}
+                    onChange={(e) => handleWantedChange('email', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone"
+                    value={wantedForm.phone}
+                    onChange={(e) => handleWantedChange('phone', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Vehicle make and model wanted"
+                    value={wantedForm.vehicle}
+                    onChange={(e) => handleWantedChange('vehicle', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Monthly budget (£)"
+                    value={wantedForm.monthlyBudget}
+                    onChange={(e) => handleWantedChange('monthlyBudget', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max months remaining"
+                    value={wantedForm.maxTermRemaining}
+                    onChange={(e) => handleWantedChange('maxTermRemaining', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Preferred annual mileage"
+                    value={wantedForm.annualMileage}
+                    onChange={(e) => handleWantedChange('annualMileage', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Preferred location"
+                    value={wantedForm.location}
+                    onChange={(e) => handleWantedChange('location', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                  />
+                  <select
+                    value={wantedForm.urgency}
+                    onChange={(e) => handleWantedChange('urgency', e.target.value)}
+                    className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white focus:border-white/30 focus:outline-none md:col-span-2"
+                  >
+                    <option value="Flexible">Timing: Flexible</option>
+                    <option value="This month">Timing: This month</option>
+                    <option value="Next 3 months">Timing: Next 3 months</option>
+                  </select>
+                </div>
+
+                <textarea
+                  placeholder="Any specific trim, fuel type, features, or deal breakers"
+                  value={wantedForm.notes}
+                  onChange={(e) => handleWantedChange('notes', e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
+                />
+
+                <button
+                  type="submit"
+                  className="w-full rounded-lg bg-cyan-600 px-6 py-3 font-semibold text-white transition hover:bg-cyan-500"
+                >
+                  Join wanted list
+                </button>
+              </form>
+            )}
           </div>
         </section>
 
