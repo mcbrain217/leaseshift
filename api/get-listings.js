@@ -1,9 +1,27 @@
+const CACHE_TTL_MS = 10 * 60 * 1000;
+
+let listingsCache = {
+  listings: null,
+  fetchedAt: 0,
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    const now = Date.now();
+    const cacheIsFresh =
+      Array.isArray(listingsCache.listings) &&
+      now - listingsCache.fetchedAt < CACHE_TTL_MS;
+
+    if (cacheIsFresh) {
+      res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=60');
+      res.setHeader('X-Listings-Cache', 'HIT');
+      return res.status(200).json({ listings: listingsCache.listings, cached: true });
+    }
+
     const airtableToken = process.env.AIRTABLE_TOKEN;
     const baseId = process.env.AIRTABLE_BASE_ID;
 
@@ -133,8 +151,14 @@ export default async function handler(req, res) {
       return a.featured ? -1 : 1;
     });
 
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-    return res.status(200).json({ listings });
+    listingsCache = {
+      listings,
+      fetchedAt: Date.now(),
+    };
+
+    res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=60');
+    res.setHeader('X-Listings-Cache', 'MISS');
+    return res.status(200).json({ listings, cached: false });
   } catch (error) {
     return res.status(500).json({
       error: 'Server error',
