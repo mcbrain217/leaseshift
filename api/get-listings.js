@@ -45,6 +45,36 @@ const calculateRemainingTerm = (leaseEndDate) => {
   };
 };
 
+const resolveLeaseEndDate = (fields, createdTime) => {
+  const explicitLeaseEndDate =
+    fields['Lease End Date'] ||
+    fields['Lease Expiry Date'] ||
+    fields['Lease Expiry'] ||
+    fields['Lease End'] ||
+    null;
+
+  if (explicitLeaseEndDate) {
+    return explicitLeaseEndDate;
+  }
+
+  // Fallback for legacy listings: derive a synthetic end date from
+  // the original Months Remaining value plus record create date.
+  const legacyMonths = Number(fields['Months Remaining']);
+  if (!Number.isFinite(legacyMonths) || legacyMonths <= 0 || !createdTime) {
+    return null;
+  }
+
+  const createdDate = new Date(createdTime);
+  if (Number.isNaN(createdDate.getTime())) {
+    return null;
+  }
+
+  const syntheticEndDate = new Date(createdDate);
+  syntheticEndDate.setUTCMonth(syntheticEndDate.getUTCMonth() + Math.round(legacyMonths));
+
+  return syntheticEndDate.toISOString().split('T')[0];
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -136,11 +166,7 @@ export default async function handler(req, res) {
       const fields = record.fields || {};
       const paymentValue = fields['Monthly Payment'] || null;
       const incentiveValue = fields['Incentive'] || null;
-      const leaseEndDate =
-        fields['Lease End Date'] ||
-        fields['Lease Expiry Date'] ||
-        fields['Lease Expiry'] ||
-        null;
+      const leaseEndDate = resolveLeaseEndDate(fields, record.createdTime);
       const remainingTerm = calculateRemainingTerm(leaseEndDate);
       const attachmentUrls = Array.isArray(fields['Attachments'])
         ? fields['Attachments']
