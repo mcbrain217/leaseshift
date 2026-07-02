@@ -97,6 +97,40 @@ const initialListings = [
     },
   ];
 
+const calculateRemainingTerm = (leaseEndDate) => {
+  if (!leaseEndDate) {
+    return { remainingMonths: null, remainingLabel: 'Term to review' };
+  }
+
+  const today = new Date();
+  const endDate = new Date(leaseEndDate);
+
+  if (Number.isNaN(endDate.getTime())) {
+    return { remainingMonths: null, remainingLabel: 'Term to review' };
+  }
+
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const endUtc = Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate());
+  const dayMs = 24 * 60 * 60 * 1000;
+  const totalDays = Math.max(0, Math.ceil((endUtc - todayUtc) / dayMs));
+
+  const months = Math.floor(totalDays / 30);
+  const days = totalDays % 30;
+
+  if (totalDays === 0) {
+    return { remainingMonths: 0, remainingLabel: '0 days left' };
+  }
+
+  const monthPart = months > 0 ? `${months} month${months === 1 ? '' : 's'}` : '';
+  const dayPart = days > 0 ? `${days} day${days === 1 ? '' : 's'}` : '';
+  const separator = monthPart && dayPart ? ' ' : '';
+
+  return {
+    remainingMonths: Math.ceil(totalDays / 30),
+    remainingLabel: `${monthPart}${separator}${dayPart} left`,
+  };
+};
+
 export default function LeaseTransferUKMarketplace() {
   const blankListingForm = {
     fullName: '',
@@ -104,7 +138,7 @@ export default function LeaseTransferUKMarketplace() {
     phone: '',
     vehicle: '',
     monthlyPayment: '',
-    monthsRemaining: '',
+    leaseEndDate: '',
     annualMileage: '',
     currentMileage: '',
     financeProvider: '',
@@ -161,7 +195,7 @@ export default function LeaseTransferUKMarketplace() {
   const steps = [
     {
       title: 'List your lease',
-      text: 'Upload your vehicle, monthly payment, months remaining, mileage allowance, and incentive offer in a few minutes.',
+      text: 'Upload your vehicle, monthly payment, lease end date, mileage allowance, and incentive offer in a few minutes.',
     },
     {
       title: 'We check the terms',
@@ -340,7 +374,7 @@ export default function LeaseTransferUKMarketplace() {
           'Phone': listingForm.phone,
           'Vehicle': listingForm.vehicle,
           'Monthly Payment': Number(listingForm.monthlyPayment || 0),
-          'Months Remaining': Number(listingForm.monthsRemaining || 0),
+          'Lease End Date': listingForm.leaseEndDate || '',
           'Permitted Annual Mileage': Number(listingForm.annualMileage || 0),
           'Current Mileage': Number(listingForm.currentMileage || 0),
           'Finance Provider': listingForm.financeProvider,
@@ -364,13 +398,16 @@ export default function LeaseTransferUKMarketplace() {
     }
 
     if (listingSubmissionSuccessful && typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      const calculatedTerm = calculateRemainingTerm(listingForm.leaseEndDate);
       window.gtag('event', 'listing_submitted', {
         vehicle: listingForm.vehicle,
         monthly_payment: Number(listingForm.monthlyPayment || 0),
-        months_remaining: Number(listingForm.monthsRemaining || 0),
+        months_remaining: Number(calculatedTerm.remainingMonths || 0),
         finance_provider: listingForm.financeProvider,
       });
     }
+
+    const calculatedTerm = calculateRemainingTerm(listingForm.leaseEndDate);
 
     const newListing = {
       id: Date.now(),
@@ -384,10 +421,9 @@ export default function LeaseTransferUKMarketplace() {
       payment: listingForm.monthlyPayment
         ? `£${listingForm.monthlyPayment}/mo`
         : 'Payment to review',
-      remainingMonths: Number(listingForm.monthsRemaining || 0),
-      remaining: listingForm.monthsRemaining
-        ? `${listingForm.monthsRemaining} months left`
-        : 'Term to review',
+      leaseEndDate: listingForm.leaseEndDate || '',
+      remainingMonths: calculatedTerm.remainingMonths,
+      remaining: calculatedTerm.remainingLabel,
       mileage: listingForm.annualMileage
         ? `${listingForm.annualMileage} miles/year`
         : 'Mileage to review',
@@ -990,10 +1026,9 @@ gtag('event', 'leaseshift_launch', {
                     required
                   />
                   <input
-                    type="number"
-                    placeholder="Months remaining"
-                    value={listingForm.monthsRemaining}
-                    onChange={(e) => handleListingChange('monthsRemaining', e.target.value)}
+                    type="date"
+                    value={listingForm.leaseEndDate}
+                    onChange={(e) => handleListingChange('leaseEndDate', e.target.value)}
                     className="rounded-lg border border-white/10 bg-slate-900 px-4 py-2 text-white placeholder-slate-400 focus:border-white/30 focus:outline-none"
                     required
                   />

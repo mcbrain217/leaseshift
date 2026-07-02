@@ -8,8 +8,42 @@ let listingsCache = {
 
 const buildListingsVersion = (listings) =>
   listings
-    .map((listing) => `${listing.id}:${listing.createdAt || ''}:${listing.slug}:${listing.featured ? '1' : '0'}`)
+    .map((listing) => `${listing.id}:${listing.createdAt || ''}:${listing.slug}:${listing.featured ? '1' : '0'}:${listing.remaining}`)
     .join('|');
+
+const calculateRemainingTerm = (leaseEndDate) => {
+  if (!leaseEndDate) {
+    return { remainingMonths: null, remainingLabel: 'Term to review' };
+  }
+
+  const today = new Date();
+  const endDate = new Date(leaseEndDate);
+
+  if (Number.isNaN(endDate.getTime())) {
+    return { remainingMonths: null, remainingLabel: 'Term to review' };
+  }
+
+  const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const endUtc = Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate());
+  const dayMs = 24 * 60 * 60 * 1000;
+  const totalDays = Math.max(0, Math.ceil((endUtc - todayUtc) / dayMs));
+
+  const months = Math.floor(totalDays / 30);
+  const days = totalDays % 30;
+
+  if (totalDays === 0) {
+    return { remainingMonths: 0, remainingLabel: '0 days left' };
+  }
+
+  const monthPart = months > 0 ? `${months} month${months === 1 ? '' : 's'}` : '';
+  const dayPart = days > 0 ? `${days} day${days === 1 ? '' : 's'}` : '';
+  const separator = monthPart && dayPart ? ' ' : '';
+
+  return {
+    remainingMonths: Math.ceil(totalDays / 30),
+    remainingLabel: `${monthPart}${separator}${dayPart} left`,
+  };
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -102,7 +136,12 @@ export default async function handler(req, res) {
       const fields = record.fields || {};
       const paymentValue = fields['Monthly Payment'] || null;
       const incentiveValue = fields['Incentive'] || null;
-      const remainingMonths = fields['Months Remaining'] || null;
+      const leaseEndDate =
+        fields['Lease End Date'] ||
+        fields['Lease Expiry Date'] ||
+        fields['Lease Expiry'] ||
+        null;
+      const remainingTerm = calculateRemainingTerm(leaseEndDate);
       const attachmentUrls = Array.isArray(fields['Attachments'])
         ? fields['Attachments']
             .map((attachment) => attachment && attachment.url)
@@ -135,8 +174,9 @@ export default async function handler(req, res) {
         slug,
         paymentValue: paymentValue,
         payment: paymentValue ? `£${paymentValue}/mo` : '',
-        remainingMonths: remainingMonths,
-        remaining: remainingMonths ? `${remainingMonths} months left` : '',
+        leaseEndDate,
+        remainingMonths: remainingTerm.remainingMonths,
+        remaining: remainingTerm.remainingLabel,
         mileage: fields['Permitted Annual Mileage']
           ? `${fields['Permitted Annual Mileage']} miles/year`
           : '',
